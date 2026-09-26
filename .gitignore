@@ -3,3 +3,4 @@ PLAN.md
 .venv/
 data/raw/
 data/out/
+__pycache__/
