@@ -1,3 +1,5 @@
 PLAN.md
 .DS_Store
 .venv/
+data/raw/
+data/out/
