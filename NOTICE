@@ -7,4 +7,4 @@ The trained adapters are fine-tuned from Qwen3-VL-4B-Instruct and Qwen3-VL-8B-In
 data was written and labelled by Qwen3-VL-32B-Instruct and Qwen2.5-VL-32B-Instruct (Alibaba Qwen team), all under
 the Apache License, Version 2.0.
 
-The dataset sources and their licences are listed in DATA.md.
+The dataset sources and their licences are listed in README.md.

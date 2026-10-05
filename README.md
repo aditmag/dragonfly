@@ -30,7 +30,7 @@ The idea comes from TypeSafe's [Jev](https://typesafe.ai/blog/introducing-system
 - **Training:** proper scoring rules (BCE, cross-entropy, ranked probability score for scales), then one
   temperature per answer type.
 - **Data:** 739,636 questions on 141,836 images: human-labelled VQA sets plus 348k questions written and labelled
-  by larger Qwen VLMs, calibrated against human labels ([DATA.md](DATA.md)).
+  by larger Qwen VLMs, calibrated against human labels.
 
 ## Results
 
@@ -74,7 +74,7 @@ without bf16).
 
 Everything is deterministic given the stored teacher outputs.
 
-1. **Human-labelled base** (CPU, standard library). Download the annotations listed in [DATA.md](DATA.md) into
+1. **Human-labelled base** (CPU, standard library). Download the annotations of the sources below into
    `data/raw/<source>/`, then:
    ```
    for s in coco vg vqav2 vqav2_choice gqa aokvqa tallyqa koniq vizwiz templates pope; do uv run python data/$s.py; done
@@ -115,9 +115,10 @@ Everything is deterministic given the stored teacher outputs.
 ## Licence
 
 Code: Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)). Data sources keep their own licences; images are not
-redistributed ([DATA.md](DATA.md)).
+redistributed ([data/IMAGES.md](data/IMAGES.md)).
 
 ## Acknowledgements
 
 We acknowledge CSC – IT Center for Science, Finland, for computational resources. Built on Qwen3-VL and
-Qwen2.5-VL (Alibaba Qwen team) and on the datasets listed in [DATA.md](DATA.md).
+Qwen2.5-VL (Alibaba Qwen team). Data from COCO, Visual Genome, VQAv2, GQA, VizWiz (CC BY 4.0), A-OKVQA, TallyQA
+(Apache-2.0), KonIQ-10k, and POPE (MIT, evaluation only).
