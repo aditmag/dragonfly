@@ -1,0 +1,83 @@
+{
+ "benchmark": "ImajevBench v2.0-lite (hf.co/datasets/mohit67890/imajev-bench, rev 043ab1f7)",
+ "splits": "dev + calibration (254 labelled items; test labels are withheld)",
+ "rule": "Unknown is correct only when the reference is Unknown",
+ "results": {
+  "Qwen3-VL-4B base": {
+   "accuracy": 0.6181102362204725,
+   "text": [
+    22,
+    38
+   ],
+   "visual": [
+    78,
+    103
+   ],
+   "joint": [
+    57,
+    113
+   ],
+   "unknown_found": [
+    0,
+    24
+   ]
+  },
+  "dragonfly 4B": {
+   "accuracy": 0.6417322834645669,
+   "text": [
+    22,
+    38
+   ],
+   "visual": [
+    81,
+    103
+   ],
+   "joint": [
+    60,
+    113
+   ],
+   "unknown_found": [
+    1,
+    24
+   ]
+  },
+  "Qwen3-VL-8B base": {
+   "accuracy": 0.6929133858267716,
+   "text": [
+    19,
+    38
+   ],
+   "visual": [
+    90,
+    103
+   ],
+   "joint": [
+    67,
+    113
+   ],
+   "unknown_found": [
+    0,
+    24
+   ]
+  },
+  "dragonfly 8B": {
+   "accuracy": 0.7086614173228346,
+   "text": [
+    23,
+    38
+   ],
+   "visual": [
+    88,
+    103
+   ],
+   "joint": [
+    69,
+    113
+   ],
+   "unknown_found": [
+    1,
+    24
+   ]
+  }
+ }
+}
