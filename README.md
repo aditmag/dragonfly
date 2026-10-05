@@ -1,123 +1,85 @@
-# Dragonfly (research preview)
+<p align="center">
+  <img src="assets/dragonfly.png" alt="Dragonfly" width="600">
+</p>
 
-Ask an image many typed questions and get a calibrated probability distribution for each one, from **one
-forward pass**, with no text generation.
+<h1 align="center">Query images  in milliseconds</h1>
 
-**Demo:** https://adit.run/dragonfly
+<h3 align="center">Dragonfly is a LoRA fine-tune of Qwen3-VL with typed output heads that answers many questions about an image in one  pass, as calibrated probabilities.</h3>
 
-| Type | Example | Output |
+<p align="center">
+  <a href="https://adit.run/dragonfly"><img src="https://img.shields.io/badge/demo-adit.run%2Fdragonfly-orange" alt="demo: adit.run/dragonfly"></a>
+</p>
+
+### How it works
+
+Unlike a VLM that generates an answer to each question, Dragonfly reads the image once and scores every question in the same pass, which is why it stays blazing fast as the list grows.
+
+<div align="center">
+
+| Questions | Qwen3-VL-4B, one request each | Dragonfly, one pass |
 |---|---|---|
-| yes / no | "Is the plane off the ground?" | P(yes), P(can't answer) |
-| choice | "How long did this flight last? [about 12 seconds, about 12 minutes, …]" | a distribution over your options, P(can't answer) |
-| scale | "How cluttered is the scene? 1 = very tidy … 5 = very cluttered" | a distribution over the scale, P(can't answer) |
+| 100 | 13.02 s | **0.22 s** |
+| 250 | 32.46 s | **0.82 s** |
+| 500 | 65.10 s | 2.30 s |
+| **1,000** | **130.19 s** | **8.20 s** |
 
-"Can't answer" is its own probability: the question doesn't fit the image (e.g. it asks about something that
-isn't there).
 
-The idea comes from TypeSafe's [Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev), a
-"System One" model for text. Jev's internals are unpublished; this is an independent design for images.
 
-## How it works
+NVIDIA GH200, bf16, median of 5 runs.
 
-- **Base:** Qwen3-VL-4B-Instruct (also trained: 8B). The vision encoder stays frozen; the LLM gets LoRA (r = 16).
-- **One packed sequence:** the image is encoded once, then every question (and every choice option) is appended
-  behind it. An isolation mask and per-block positions mean questions can't see each other, so their order,
-  and the order of options, changes the outputs by exactly 0 (checked to ~1e-4). Each extra question costs
-  ~10 tokens, not another image.
-- **Typed heads:** read the hidden states at positions the sequence already has. They're warm-started so that,
-  before training, the model *is* the base model's own answer readout; training only moves away from it where
-  that lowers the loss.
-- **Training:** proper scoring rules (BCE, cross-entropy, ranked probability score for scales), then one
-  temperature per answer type.
-- **Data:** 739,636 questions on 141,836 images: human-labelled VQA sets plus 348k questions written and labelled
-  by larger Qwen VLMs, calibrated against human labels.
+</div>
 
-## Results
+### Typed answers
 
-9,706 held-out test images. Accuracy / calibration error (ECE, lower is better):
+A VLM can reply with anything. Dragonfly can only answer in the form you asked for, with a probability for each
+possible answer.
 
-| | 4B base | **4B trained** | 8B base | **8B trained** |
-|---|---|---|---|---|
-| yes / no (41.8k) | .858 / .011 | .881 / .007 | .864 / .020 | **.884 / .006** |
-| choice (15.2k) | .821 / .010 | .839 / **.003** | .823 / .011 | **.841** / .008 |
-| scale (16.5k) | .727 / .023 | .778 / **.009** | .738 / .031 | **.782** / .012 |
-| held-out families: material / open-closed | .871 / .706 | .882 / .723 | .880 / .720 | **.889 / .732** |
-| POPE adversarial (yes-bias) | .880 | **.890** | .875 | .883 |
-| "can't answer" AUROC | 0.50 | 0.999 | 0.50 | 0.999 |
-| ECE with no temperature | .11–.18 | ≤ .012 | .10–.14 | ≤ .011 |
+<div align="center">
 
-- Training beats the base model on every question type, including two question families never seen in training.
-- Training matters more than size: the trained 4B beats the untrained 8B everywhere.
-- Speed: 4 questions in one pass take ~60–90 ms of model time on a single GPU (RTX 5070 / GH200).
-- Limits: no reasoning step, so counting past ~5, small text and arithmetic are weak. On
-  [ImajevBench](https://huggingface.co/datasets/mohit67890/imajev-bench) (synthetic menus, receipts and signs, often
-  with written rules; its labelled dev + calibration splits) it scores 64% (4B) / 71% (8B), well behind models
-  trained for that task: it has no notion of written rules, and its "can't answer" means the image doesn't fit
-  the question rather than "the evidence is insufficient".
-- About 14% of test labels are teacher-made, so those rows partly measure agreement with the teacher; the human and
-  exact labels are the independent part.
+| Type | Question | Qwen3-VL-4B | Dragonfly |
+|---|---|---|---|
+| Yes / no | "Is the plane off the ground?" | "Yes, the plane is off the ground. In this historical photograph, the Wright Flyer…" | yes 80%<br>no 20%<br>*can't answer 0%* |
+| Choice | "What time of day is it: morning, noon, or night?" | "Based on the visual evidence in the image, it is most likely **morning**. Here's the reasoning: …" | morning 58%<br>noon 30%<br>night 12%<br>*can't answer 35%* |
+| Scale | "How cluttered is the scene, from 1 (tidy) to 3 (cluttered)?" | "The scene is **1 (tidy)**. While there are a few scattered objects — like a small crate or box in the foreground…" | 1: 74%<br>2: 19%<br>3: 6%<br>*can't answer 5%* |
 
-Raw numbers: [results/](results/).
+</div>
 
-## Run it
+"Can't answer" is the probability that the question doesn't fit the image. When told to pick a colour for the dog (brown, black, or white) in a photo with no dog, Qwen3-VL-4B picked "black"; Dragonfly returns can't answer 98%.
+
+### Data
+
+No dataset asks typed questions with probability answers, so we built one: human-labelled questions from public
+VQA datasets, plus questions written and labelled by larger Qwen VLMs, calibrated against the human labels.
+
+<div align="center">
+
+| Source | Train | Val | Test | Total |
+|---|---:|---:|---:|---:|
+| Human vote spreads (VQAv2, KonIQ-10k) | 79,105 | 16,005 | 18,031 | 113,141 |
+| Exact labels (GQA, A-OKVQA, TallyQA, VizWiz, COCO / Visual Genome) | 174,093 | 30,518 | 43,855 | 248,466 |
+| Written and labelled by Qwen3-VL-32B and Qwen2.5-VL-32B | 325,757 | 8,176 | 13,821 | 347,754 |
+| Option-count variants | 30,275 | – | – | 30,275 |
+| **Questions** | **609,230** | **54,699** | **75,707** | **739,636** |
+| **Images** | **123,048** | **9,082** | **9,706** | **141,836** |
+
+</div>
+
+### Run it
 
 ```
 uv sync
 uv run python model/serve.py --run runs/full4b      # then open http://127.0.0.1:8800
 ```
 
-`runs/full4b` holds the trained adapter (`lora/`, `heads.pt`, `log.json`); the trained 4B and 8B adapters will
-be published on Hugging Face. One GPU with ~12 GB is enough for the 4B in bf16 (`--dtype float16` on GPUs
-without bf16).
+`runs/full4b` is the trained adapter (`lora/`, `heads.pt`, `log.json`); the 4B and 8B adapters will be published
+on Hugging Face. The 4B needs one GPU with ~12 GB (add `--dtype float16` on GPUs without bf16).
 
-## Reproduce
+### License
 
-Everything is deterministic given the stored teacher outputs.
+Code: Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)). The data sources keep their own licenses, and images are
+not redistributed ([data/IMAGES.md](data/IMAGES.md)).
 
-1. **Human-labelled base** (CPU, standard library). Download the annotations of the sources below into
-   `data/raw/<source>/`, then:
-   ```
-   for s in coco vg vqav2 vqav2_choice gqa aokvqa tallyqa koniq vizwiz templates pope; do uv run python data/$s.py; done
-   uv run python data/merge.py && uv run python data/selection.py
-   mkdir -p data/out/v2 && cp data/out/dataset_selected.jsonl data/out/v2/base_selected.jsonl
-   uv run python data/fetch_images.py --manifest data/out/images_selected.jsonl     # see data/IMAGES.md
-   ```
-2. **Teacher-written questions** (GPU, vLLM 0.29.0, two 32B VLMs; ~20 GPU-hours on GH200s for all images):
-   ```
-   uv run python data/topics.py                       # question specs per image -> data/out/v2/specs.jsonl
-   uv run python data/teacher.py calibset             # human-labelled calibration questions
-   uv run python data/teacher.py calibrate --model Qwen/Qwen3-VL-32B-Instruct   --out data/out/v2/cal_q3.json
-   uv run python data/teacher.py calibrate --model Qwen/Qwen2.5-VL-32B-Instruct --out data/out/v2/cal_q25.json
-   uv run python data/teacher.py write    --out data/out/v2/written.jsonl          # add --shard i/n to split
-   uv run python data/teacher.py classify --inputs data/out/v2/written.jsonl --out data/out/v2/verdicts.jsonl
-   uv run python data/teacher.py label --types bool --inputs data/out/v2/written.jsonl \
-       --verdicts data/out/v2/verdicts.jsonl --calibration data/out/v2/cal_q3.json --out data/out/v2/lab_q3.jsonl
-   uv run python data/teacher.py label --model Qwen/Qwen2.5-VL-32B-Instruct --types choice score \
-       --inputs data/out/v2/written.jsonl --verdicts data/out/v2/verdicts.jsonl \
-       --calibration data/out/v2/cal_q25.json --out data/out/v2/lab_q25.jsonl
-   uv run python data/teacher.py recalibrate --calibration data/out/v2/cal_q25.json \
-       --rots data/out/v2/cal_q25.premise.rots.json --labelled data/out/v2/lab_q25.jsonl --out data/out/v2/cal3_q25.json
-   uv run python data/teacher.py finalize --stability 0.03 \
-       --inputs data/out/v2/lab_q3.jsonl:data/out/v2/cal_q3.json:bool data/out/v2/lab_q25.jsonl:data/out/v2/cal3_q25.json:choice,score
-   uv run python data/merge.py && uv run python data/selection.py && uv run python data/qa.py data/out/dataset_selected.jsonl
-   ```
-3. **Train and evaluate** (GPU; ~2 h for the 4B on one GH200):
-   ```
-   uv run python model/train.py --model Qwen/Qwen3-VL-4B-Instruct --train-ids data/out/ids_train.txt \
-       --val-ids data/out/ids_val.txt --images data/images --out runs/full4b --epochs 1 --accum 16 --batch 8 \
-       --warmup 200 --final-val-limit 2000 --workers 16
-   uv run python model/evaluate.py --ids data/out/ids_test.txt --val-ids data/out/ids_val.txt --val-limit 1000 \
-       --images data/images --adapter runs/full4b --out runs/full4b/eval_test.json
-   ```
-   Self-checks against the real model (packed == separate, order invariance, step 0 == base):
-   `python model/pack.py`, `python model/heads.py`, `python model/cache.py`.
-
-## Licence
-
-Code: Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)). Data sources keep their own licences; images are not
-redistributed ([data/IMAGES.md](data/IMAGES.md)).
-
-## Acknowledgements
+### Thanks
 
 We acknowledge CSC – IT Center for Science, Finland, for computational resources. Built on Qwen3-VL and
 Qwen2.5-VL (Alibaba Qwen team). Data from COCO, Visual Genome, VQAv2, GQA, VizWiz (CC BY 4.0), A-OKVQA, TallyQA
