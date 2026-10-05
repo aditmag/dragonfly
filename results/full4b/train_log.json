@@ -1,0 +1,219 @@
+{
+ "args": {
+  "train_ids": "../data/out/v2/ids_train.txt",
+  "val_ids": "../data/out/v2/ids_val.txt",
+  "cache": null,
+  "images": "data/images",
+  "workers": 16,
+  "out": "../runs/full4b",
+  "dataset": "data/out/dataset_selected.jsonl",
+  "model": "Qwen/Qwen3-VL-4B-Instruct",
+  "dtype": null,
+  "steps": 500,
+  "epochs": 1.0,
+  "accum": 16,
+  "batch": 8,
+  "max_tokens": 7000,
+  "lr": 0.0001,
+  "head_lr": 0.001,
+  "warmup": 200,
+  "lora_r": 16,
+  "eval_every": 500,
+  "val_limit": 500,
+  "final_val_limit": 2000,
+  "save_every": 500,
+  "resume": true,
+  "seed": 0
+ },
+ "log": [
+  {
+   "step": 0,
+   "val": 1.233901192318967,
+   "val_by_type": {
+    "bool": 0.9278,
+    "choice": 1.6361,
+    "score": 1.5085
+   }
+  },
+  {
+   "step": 500,
+   "val": 0.4735933365125152,
+   "val_by_type": {
+    "bool": 0.3473,
+    "choice": 0.4881,
+    "score": 0.702
+   },
+   "train": 0.638038152968511
+  },
+  {
+   "step": 1000,
+   "val": 0.4568802586909392,
+   "val_by_type": {
+    "bool": 0.344,
+    "choice": 0.4699,
+    "score": 0.661
+   },
+   "train": 0.663070244435221
+  },
+  {
+   "step": 1500,
+   "val": 0.4598623052775004,
+   "val_by_type": {
+    "bool": 0.3422,
+    "choice": 0.4658,
+    "score": 0.6785
+   },
+   "train": 0.6211820546537637
+  },
+  {
+   "step": 2000,
+   "val": 0.442282373579798,
+   "val_by_type": {
+    "bool": 0.3171,
+    "choice": 0.4506,
+    "score": 0.6733
+   },
+   "train": 0.5548286313656717
+  },
+  {
+   "step": 2500,
+   "val": 0.4342794605378931,
+   "val_by_type": {
+    "bool": 0.3162,
+    "choice": 0.446,
+    "score": 0.6492
+   },
+   "train": 0.557031836360693
+  },
+  {
+   "step": 3000,
+   "val": 0.4405417424610091,
+   "val_by_type": {
+    "bool": 0.3136,
+    "choice": 0.4504,
+    "score": 0.6737
+   },
+   "train": 0.6036339708603918
+  },
+  {
+   "step": 3500,
+   "val": 0.4271396730154521,
+   "val_by_type": {
+    "bool": 0.322,
+    "choice": 0.4458,
+    "score": 0.6123
+   },
+   "train": 0.611670408747159
+  },
+  {
+   "step": 4000,
+   "val": 0.4299140759327071,
+   "val_by_type": {
+    "bool": 0.3198,
+    "choice": 0.4373,
+    "score": 0.6331
+   },
+   "train": 0.5513837430160493
+  },
+  {
+   "step": 4500,
+   "val": 0.4273467675810501,
+   "val_by_type": {
+    "bool": 0.3223,
+    "choice": 0.4351,
+    "score": 0.6207
+   },
+   "train": 0.5763894622970838
+  },
+  {
+   "step": 5000,
+   "val": 0.4195331259875819,
+   "val_by_type": {
+    "bool": 0.3107,
+    "choice": 0.4313,
+    "score": 0.6171
+   },
+   "train": 0.5877210904378444
+  },
+  {
+   "step": 5500,
+   "val": 0.42328418844413596,
+   "val_by_type": {
+    "bool": 0.3076,
+    "choice": 0.4333,
+    "score": 0.6352
+   },
+   "train": 0.5789417504798621
+  },
+  {
+   "step": 6000,
+   "val": 0.4164633116960799,
+   "val_by_type": {
+    "bool": 0.3093,
+    "choice": 0.4323,
+    "score": 0.6077
+   },
+   "train": 0.5455773739609867
+  },
+  {
+   "step": 6500,
+   "val": 0.41419994577130737,
+   "val_by_type": {
+    "bool": 0.3057,
+    "choice": 0.4312,
+    "score": 0.6069
+   },
+   "train": 0.5916823175270111
+  },
+  {
+   "step": 7000,
+   "val": 0.4118770098672359,
+   "val_by_type": {
+    "bool": 0.3074,
+    "choice": 0.4305,
+    "score": 0.5958
+   },
+   "train": 0.5267753393854946
+  },
+  {
+   "step": 7500,
+   "val": 0.41107551681046434,
+   "val_by_type": {
+    "bool": 0.3045,
+    "choice": 0.4301,
+    "score": 0.5988
+   },
+   "train": 0.5790264249662869
+  },
+  {
+   "step": 7691,
+   "val": 0.4119927339349468,
+   "val_by_type": {
+    "bool": 0.3128,
+    "choice": 0.4321,
+    "score": 0.5852
+   },
+   "train": 0.5545665060402826
+  }
+ ],
+ "temperatures": {
+  "bool": {
+   "T": 1.1051709180756477,
+   "nll_T1": 0.30528951985556985,
+   "nll_best": 0.3042871007923407,
+   "n": 7335
+  },
+  "choice": {
+   "T": 1.0,
+   "nll_T1": 0.4546296947135984,
+   "nll_best": 0.4546296947135984,
+   "n": 2763
+  },
+  "score": {
+   "T": 1.0512710963760241,
+   "nll_T1": 0.559645928236113,
+   "nll_best": 0.5594062682614522,
+   "n": 3967
+  }
+ }
+}

@@ -1,6 +1,11 @@
 PLAN.md
+infra/
 .DS_Store
 .venv/
-data/raw/
-data/out/
 __pycache__/
+data/raw
+data/out
+data/images
+data/cache
+data/runs
+runs/

@@ -1,0 +1,193 @@
+{
+ "model": "Qwen/Qwen3-VL-4B-Instruct",
+ "adapter": "../runs/full4b",
+ "images": 2000,
+ "loss": 0.409,
+ "loss_by_type": {
+  "bool": 0.3332,
+  "choice": 0.4245,
+  "score": 0.5609
+ },
+ "temperatures": {
+  "bool": {
+   "T": 1.0,
+   "nll_T1": 0.26112199141044484,
+   "nll_best": 0.26112199141044484,
+   "n": 586
+  },
+  "choice": {
+   "T": 1.0512710963760241,
+   "nll_T1": 0.4965987916057434,
+   "nll_best": 0.4959372205478932,
+   "n": 235
+  },
+  "score": {
+   "T": 1.161834242728283,
+   "nll_T1": 0.6717434625944187,
+   "nll_best": 0.6670156033516049,
+   "n": 316
+  }
+ },
+ "raw_T1": {
+  "bool": {
+   "n": 8181,
+   "acc": 0.8661,
+   "ece": 0.0076,
+   "nll": 0.3073
+  },
+  "choice": {
+   "n": 3534,
+   "acc": 0.8405,
+   "ece": 0.0078,
+   "nll": 0.4
+  },
+  "held_out/material": {
+   "n": 952,
+   "acc": 0.8708,
+   "ece": 0.0071,
+   "nll": 0.3574
+  },
+  "held_out/open_closed": {
+   "n": 562,
+   "acc": 0.7445,
+   "ece": 0.0165,
+   "nll": 0.4948
+  },
+  "label_kind/exact/bool": {
+   "n": 2280,
+   "acc": 0.9132,
+   "ece": 0.0081,
+   "nll": 0.2071
+  },
+  "label_kind/exact/choice": {
+   "n": 723,
+   "acc": 0.9073,
+   "ece": 0.0312,
+   "nll": 0.2448
+  },
+  "label_kind/exact/score": {
+   "n": 3682,
+   "acc": 0.8072,
+   "ece": 0.0127,
+   "nll": 0.4895
+  },
+  "label_kind/human_soft/bool": {
+   "n": 4996,
+   "acc": 0.8462,
+   "ece": 0.0107,
+   "nll": 0.3496
+  },
+  "label_kind/human_soft/choice": {
+   "n": 1229,
+   "acc": 0.8875,
+   "ece": 0.0083,
+   "nll": 0.2606
+  },
+  "label_kind/teacher_soft/bool": {
+   "n": 905,
+   "acc": 0.8576,
+   "ece": 0.0127,
+   "nll": 0.3262
+  },
+  "label_kind/teacher_soft/choice": {
+   "n": 1582,
+   "acc": 0.7734,
+   "ece": 0.009,
+   "nll": 0.5792
+  },
+  "label_kind/teacher_soft/score": {
+   "n": 166,
+   "acc": 0.3503,
+   "ece": 0.0166,
+   "nll": 1.5767
+  },
+  "score": {
+   "n": 3848,
+   "acc": 0.7875,
+   "ece": 0.0127,
+   "nll": 0.5364
+  },
+  "na_auroc": 0.9988
+ },
+ "with_T": {
+  "bool": {
+   "n": 8181,
+   "acc": 0.8661,
+   "ece": 0.0076,
+   "nll": 0.3073
+  },
+  "choice": {
+   "n": 3534,
+   "acc": 0.8405,
+   "ece": 0.0123,
+   "nll": 0.4009
+  },
+  "held_out/material": {
+   "n": 952,
+   "acc": 0.8708,
+   "ece": 0.015,
+   "nll": 0.3576
+  },
+  "held_out/open_closed": {
+   "n": 562,
+   "acc": 0.7445,
+   "ece": 0.0158,
+   "nll": 0.4947
+  },
+  "label_kind/exact/bool": {
+   "n": 2280,
+   "acc": 0.9132,
+   "ece": 0.0081,
+   "nll": 0.2071
+  },
+  "label_kind/exact/choice": {
+   "n": 723,
+   "acc": 0.9073,
+   "ece": 0.0386,
+   "nll": 0.2477
+  },
+  "label_kind/exact/score": {
+   "n": 3682,
+   "acc": 0.8072,
+   "ece": 0.0228,
+   "nll": 0.4948
+  },
+  "label_kind/human_soft/bool": {
+   "n": 4996,
+   "acc": 0.8462,
+   "ece": 0.0107,
+   "nll": 0.3496
+  },
+  "label_kind/human_soft/choice": {
+   "n": 1229,
+   "acc": 0.8875,
+   "ece": 0.0081,
+   "nll": 0.2614
+  },
+  "label_kind/teacher_soft/bool": {
+   "n": 905,
+   "acc": 0.8576,
+   "ece": 0.0127,
+   "nll": 0.3262
+  },
+  "label_kind/teacher_soft/choice": {
+   "n": 1582,
+   "acc": 0.7734,
+   "ece": 0.0092,
+   "nll": 0.5792
+  },
+  "label_kind/teacher_soft/score": {
+   "n": 166,
+   "acc": 0.3503,
+   "ece": 0.0251,
+   "nll": 1.5799
+  },
+  "score": {
+   "n": 3848,
+   "acc": 0.7875,
+   "ece": 0.0217,
+   "nll": 0.5416
+  },
+  "na_auroc": 0.9988
+ }
+}

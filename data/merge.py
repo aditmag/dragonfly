@@ -1,27 +1,70 @@
 """Join builder outputs by image -> out/dataset.jsonl + out/images.jsonl, and print stats.
 
-Applies the dataset rules from PLAN.md §7: split by image hash, POPE images only in test,
+Applies the dataset rules: split by image hash, POPE images only in test,
 held-out families only in test, one copy of each question per image.
 """
-import hashlib
 import math
+import re
 from collections import Counter, defaultdict
 
-from common import OUT, family, read_jsonl, write_jsonl
+from common import OUT, family, read_jsonl, split_of, write_jsonl
 
-SOURCES = ["vqav2", "pope"]      # builder outputs, out/<name>.jsonl
-IMAGE_INDEXES = ["coco"]         # out/images_<name>.jsonl
+# builder outputs, out/<name>.jsonl
+SOURCES = ["vqav2", "vqav2_choice", "gqa", "aokvqa", "tallyqa", "koniq", "vizwiz", "templates", "pope",
+           "vlm_v2"]  # teacher-written (teacher.py finalize)
+OPTIONAL = {"vlm_v2"}  # skipped if not built yet (the human-only base the teacher run is planned from)
+IMAGE_INDEXES = ["coco", "vg", "vizwiz", "koniq"]   # out/images_<name>.jsonl
 HELD_OUT = {"open_closed", "material"}
 LABEL_KINDS = {"exact", "human_soft", "teacher_soft"}
 
 
-def split_of(image_id):
-    h = int(hashlib.sha1(image_id.encode()).hexdigest()[:8], 16) % 100
-    return "train" if h < 90 else "val" if h < 95 else "test"
-
-
 def close_to_one(x):
     return math.isclose(x, 1.0, abs_tol=1e-3)
+
+
+EITHER_OR = re.compile(r"\b\w+ or \w+\b")  # bool questions matching this need a yes/no classifier verdict
+# teacher.py classify over every human either/or bool in the unfiltered pool (out/v2/human_either_or.jsonl), so
+# any selection is covered; teacher-written ones are handled in teacher.py label
+VERDICTS = OUT / "v2/human_verdicts.jsonl"
+
+DENIALS = {"unknown", "unclear", "not sure", "not possible", "cannot tell", "can't tell", "cannot determine",
+           "can't determine", "none of the above"}
+
+
+def _stem(w):
+    return w[:-2] if w.endswith("es") and len(w) > 4 else w[:-1] if w.endswith("s") and len(w) > 3 else w
+
+
+def is_denial(option, question):
+    """An option that denies the question's premise rather than answering it: "no door" for "What colour is
+    the door?", or "unknown". Those belong in na, not among the answers (dataset v2, fix #15). "none",
+    "nothing", "no one" and sign texts like "no parking" stay: they answer the question."""
+    o = option.strip().lower()
+    if o in DENIALS:
+        return True
+    m = re.fullmatch(r"no ([a-z]+)", o)
+    return bool(m) and _stem(m.group(1)) in {_stem(w) for w in re.findall(r"[a-z]+", question.lower())}
+
+
+def move_denials_to_na(q):
+    """Remove premise-denial options from a choice question, moving their target mass into na. Returns
+    the fixed question, or None if fewer than 2 options remain."""
+    if q["type"] != "choice":
+        return q
+    bad = [o for o in q["options"] if is_denial(o, q["q"])]
+    if not bad:
+        return q
+    keep = [o for o in q["options"] if o not in bad]
+    if len(keep) < 2:
+        return None
+    t, na = q["target"], q["na"]
+    if t is not None:
+        moved = sum(t[o] for o in bad)
+        na = na + (1 - na) * moved
+        rest = sum(t[o] for o in keep)
+        t = {o: t[o] / rest for o in keep} if rest > 0 and na < 1 else None
+        na = 1.0 if t is None else na
+    return {**q, "options": keep, "target": t, "na": na}
 
 
 def problem(q):
@@ -33,18 +76,22 @@ def problem(q):
     if not 0.0 <= q.get("na", -1) <= 1.0:
         return "bad na"
     t = q.get("target")
+    if (t is None) != (q["na"] == 1.0):   # not applicable: no target, the loss is BCE on the N/A output only
+        return "target must be null exactly when na = 1"
     if q["type"] == "bool":
-        ok = isinstance(t, dict) and set(t) == {"yes", "no"}
+        ok = t is None or (isinstance(t, dict) and set(t) == {"yes", "no"})
     elif q["type"] == "choice":
         opts = q.get("options", [])
-        ok = len(opts) >= 2 and len(set(opts)) == len(opts) and isinstance(t, dict) and set(t) == set(opts)
+        ok = len(opts) >= 2 and len(set(opts)) == len(opts) and (t is None or (isinstance(t, dict) and set(t) == set(opts)))
     elif q["type"] == "score":
         lo, hi = q.get("scale", (0, -1))
-        ok = isinstance(t, list) and len(t) == hi - lo + 1
+        ok = hi > lo and (t is None or (isinstance(t, list) and len(t) == hi - lo + 1))
     else:
         return f"unknown type {q['type']!r}"
     if not ok:
         return f"bad {q['type']} target"
+    if t is None:
+        return None
     values = t.values() if isinstance(t, dict) else t
     if min(values) < 0 or not close_to_one(sum(values)):
         return "target is not a distribution"
@@ -58,9 +105,29 @@ def main():
             manifest[row["image_id"]] = row
 
     by_image = defaultdict(list)
+    denials = Counter()
+    # human bool questions phrased "X or Y": keep only those the classifier says are plain yes/no
+    # (teacher questions were already converted or verified in teacher.py label)
+    verdicts = {(v["image_id"], v["q"]): v["yesno_ok"] for v in read_jsonl(VERDICTS)} if VERDICTS.exists() else {}
     for name in SOURCES:
+        if name in OPTIONAL and not (OUT / f"{name}.jsonl").exists():
+            print(f"{name}: not built yet, skipped")
+            continue
         for rec in read_jsonl(OUT / f"{name}.jsonl"):
-            by_image[rec["image_id"]].extend(rec["questions"])
+            for q in rec["questions"]:
+                if q["type"] == "bool" and EITHER_OR.search(q["q"]) and q["label_kind"] != "teacher_soft":
+                    ok = verdicts.get((rec["image_id"], q["q"]))
+                    if ok is False:
+                        denials["either/or bool dropped"] += 1
+                        continue
+                    if ok:
+                        q = {**q, "yesno_ok": True}
+                fixed = move_denials_to_na(q)
+                if fixed is not q:
+                    denials["dropped (<2 options left)" if fixed is None else "denial option moved to na"] += 1
+                if fixed is not None:
+                    by_image[rec["image_id"]].append(fixed)
+    print("premise-denial / either-or fixes:", dict(denials) or "none")
     pope_images = {i for i, qs in by_image.items() if any(q["source"].startswith("pope") for q in qs)}
 
     dropped = Counter()

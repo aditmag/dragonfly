@@ -1,0 +1,247 @@
+{
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "adapter": "../runs/full8b",
+ "images": 9706,
+ "loss": 0.3908,
+ "loss_by_type": {
+  "bool": 0.3024,
+  "choice": 0.4308,
+  "score": 0.5819
+ },
+ "temperatures": {
+  "bool": {
+   "T": 1.0512710963760241,
+   "nll_T1": 0.2865945255688153,
+   "nll_best": 0.2864020664071855,
+   "n": 3620
+  },
+  "choice": {
+   "T": 0.951229424500714,
+   "nll_T1": 0.4469072856888561,
+   "nll_best": 0.4467972817512469,
+   "n": 1401
+  },
+  "score": {
+   "T": 1.0512710963760241,
+   "nll_T1": 0.5421510363580286,
+   "nll_best": 0.5413681398160686,
+   "n": 1981
+  }
+ },
+ "raw_T1": {
+  "bool": {
+   "n": 41832,
+   "acc": 0.8843,
+   "ece": 0.0111,
+   "nll": 0.2768
+  },
+  "choice": {
+   "n": 15155,
+   "acc": 0.8411,
+   "ece": 0.0045,
+   "nll": 0.3997
+  },
+  "held_out/material": {
+   "n": 5085,
+   "acc": 0.8892,
+   "ece": 0.0058,
+   "nll": 0.3062
+  },
+  "held_out/open_closed": {
+   "n": 2655,
+   "acc": 0.7322,
+   "ece": 0.0295,
+   "nll": 0.5067
+  },
+  "label_kind/exact/bool": {
+   "n": 23149,
+   "acc": 0.9091,
+   "ece": 0.0147,
+   "nll": 0.2262
+  },
+  "label_kind/exact/choice": {
+   "n": 4122,
+   "acc": 0.9195,
+   "ece": 0.0159,
+   "nll": 0.2304
+  },
+  "label_kind/exact/score": {
+   "n": 15143,
+   "acc": 0.812,
+   "ece": 0.0084,
+   "nll": 0.4904
+  },
+  "label_kind/human_soft/bool": {
+   "n": 13535,
+   "acc": 0.8507,
+   "ece": 0.0091,
+   "nll": 0.3469
+  },
+  "label_kind/human_soft/choice": {
+   "n": 4012,
+   "acc": 0.8844,
+   "ece": 0.0112,
+   "nll": 0.2577
+  },
+  "label_kind/human_soft/score": {
+   "n": 484,
+   "acc": 0.5769,
+   "ece": 0.0046,
+   "nll": 0.9142
+  },
+  "label_kind/teacher_soft/bool": {
+   "n": 5148,
+   "acc": 0.8614,
+   "ece": 0.011,
+   "nll": 0.3196
+  },
+  "label_kind/teacher_soft/choice": {
+   "n": 7021,
+   "acc": 0.7705,
+   "ece": 0.0066,
+   "nll": 0.5803
+  },
+  "label_kind/teacher_soft/score": {
+   "n": 831,
+   "acc": 0.36,
+   "ece": 0.0096,
+   "nll": 1.5588
+  },
+  "pope_adversarial": {
+   "n": 3000,
+   "acc": 0.8827,
+   "ece": 0.0393,
+   "nll": 0.2966,
+   "yes_rate": 0.4567
+  },
+  "pope_popular": {
+   "n": 3000,
+   "acc": 0.9007,
+   "ece": 0.033,
+   "nll": 0.2594,
+   "yes_rate": 0.438
+  },
+  "pope_random": {
+   "n": 3000,
+   "acc": 0.9147,
+   "ece": 0.0347,
+   "nll": 0.2263,
+   "yes_rate": 0.4247
+  },
+  "score": {
+   "n": 16458,
+   "acc": 0.7823,
+   "ece": 0.0079,
+   "nll": 0.5568
+  },
+  "na_auroc": 0.9991
+ },
+ "with_T": {
+  "bool": {
+   "n": 41832,
+   "acc": 0.8843,
+   "ece": 0.0065,
+   "nll": 0.2757
+  },
+  "choice": {
+   "n": 15155,
+   "acc": 0.8411,
+   "ece": 0.0084,
+   "nll": 0.4001
+  },
+  "held_out/material": {
+   "n": 5085,
+   "acc": 0.8892,
+   "ece": 0.0063,
+   "nll": 0.306
+  },
+  "held_out/open_closed": {
+   "n": 2655,
+   "acc": 0.7322,
+   "ece": 0.0283,
+   "nll": 0.5062
+  },
+  "label_kind/exact/bool": {
+   "n": 23149,
+   "acc": 0.9091,
+   "ece": 0.0102,
+   "nll": 0.2248
+  },
+  "label_kind/exact/choice": {
+   "n": 4122,
+   "acc": 0.9195,
+   "ece": 0.0108,
+   "nll": 0.2289
+  },
+  "label_kind/exact/score": {
+   "n": 15143,
+   "acc": 0.812,
+   "ece": 0.0129,
+   "nll": 0.4904
+  },
+  "label_kind/human_soft/bool": {
+   "n": 13535,
+   "acc": 0.8507,
+   "ece": 0.0046,
+   "nll": 0.3462
+  },
+  "label_kind/human_soft/choice": {
+   "n": 4012,
+   "acc": 0.8844,
+   "ece": 0.0141,
+   "nll": 0.2582
+  },
+  "label_kind/human_soft/score": {
+   "n": 484,
+   "acc": 0.5769,
+   "ece": 0.012,
+   "nll": 0.915
+  },
+  "label_kind/teacher_soft/bool": {
+   "n": 5148,
+   "acc": 0.8614,
+   "ece": 0.0068,
+   "nll": 0.3193
+  },
+  "label_kind/teacher_soft/choice": {
+   "n": 7021,
+   "acc": 0.7705,
+   "ece": 0.0144,
+   "nll": 0.5816
+  },
+  "label_kind/teacher_soft/score": {
+   "n": 831,
+   "acc": 0.36,
+   "ece": 0.0079,
+   "nll": 1.5585
+  },
+  "pope_adversarial": {
+   "n": 3000,
+   "acc": 0.8827,
+   "ece": 0.032,
+   "nll": 0.2922,
+   "yes_rate": 0.4567
+  },
+  "pope_popular": {
+   "n": 3000,
+   "acc": 0.9007,
+   "ece": 0.0294,
+   "nll": 0.2552,
+   "yes_rate": 0.438
+  },
+  "pope_random": {
+   "n": 3000,
+   "acc": 0.9147,
+   "ece": 0.0311,
+   "nll": 0.222,
+   "yes_rate": 0.4247
+  },
+  "score": {
+   "n": 16458,
+   "acc": 0.7823,
+   "ece": 0.0121,
+   "nll": 0.5568
+  },
+  "na_auroc": 0.9991
+ }
+}
