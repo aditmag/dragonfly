@@ -1,6 +1,6 @@
 """Join builder outputs by image -> out/dataset.jsonl + out/images.jsonl, and print stats.
 
-Applies the dataset rules (docs/REPORT.md): split by image hash, POPE images only in test,
+Applies the dataset rules: split by image hash, POPE images only in test,
 held-out families only in test, one copy of each question per image.
 """
 import math

@@ -1,4 +1,4 @@
-"""Dataset acceptance checks (dataset v2, docs/REPORT.md). Deterministic, read-only.
+"""Dataset acceptance checks (dataset v2). Deterministic, read-only.
 
     uv run python data/qa.py out/v1/dataset_selected.jsonl                       # the "before" column
     uv run python data/qa.py out/dataset_selected.jsonl --teacher out/teacher_calibration.json --json out/qa_v2.json

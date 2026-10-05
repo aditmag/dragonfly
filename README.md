@@ -3,7 +3,7 @@
 Ask an image many typed questions and get a calibrated probability distribution for each one, from **one
 forward pass**, with no text generation.
 
-**Demo:** https://adit.run/dragonfly · **Write-up:** [docs/REPORT.md](docs/REPORT.md)
+**Demo:** https://adit.run/dragonfly
 
 | Type | Example | Output |
 |---|---|---|
@@ -52,7 +52,10 @@ The idea comes from TypeSafe's [Jev](https://typesafe.ai/blog/introducing-system
 - Limits: no reasoning step, so counting past ~5, small text and arithmetic are weak. On
   [ImajevBench](https://huggingface.co/datasets/mohit67890/imajev-bench) (synthetic menus, receipts and signs, often
   with written rules; its labelled dev + calibration splits) it scores 64% (4B) / 71% (8B), well behind models
-  trained for that task. Details and caveats in [docs/REPORT.md](docs/REPORT.md).
+  trained for that task: it has no notion of written rules, and its "can't answer" means the image doesn't fit
+  the question rather than "the evidence is insufficient".
+- About 14% of test labels are teacher-made, so those rows partly measure agreement with the teacher; the human and
+  exact labels are the independent part.
 
 Raw numbers: [results/](results/).
 
@@ -69,8 +72,7 @@ without bf16).
 
 ## Reproduce
 
-Everything is deterministic given the stored teacher outputs; see [docs/REPORT.md](docs/REPORT.md) for the
-reasoning behind each step.
+Everything is deterministic given the stored teacher outputs.
 
 1. **Human-labelled base** (CPU, standard library). Download the annotations listed in [DATA.md](DATA.md) into
    `data/raw/<source>/`, then:

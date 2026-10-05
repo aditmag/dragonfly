@@ -24,7 +24,7 @@ their original hosts (see [data/IMAGES.md](data/IMAGES.md)).
 scale, intended answer, or an absent object for "can't answer" questions) and labelled from the models' answer
 probabilities over several option orders: yes/no by Qwen3-VL-32B-Instruct, choice and scale by
 **Qwen2.5-VL-32B-Instruct**. Both are Apache-2.0. The labels are calibrated against human labels and corrected for
-answer-letter and position bias; unstable labels are dropped ([docs/REPORT.md](docs/REPORT.md)).
+answer-letter and position bias; unstable labels are dropped (`data/teacher.py`).
 
 ## The dataset
 
