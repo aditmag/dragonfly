@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dragonfly</title>
+<style>
+:root{
+  --bg:#f5f6f3;--surface:#ffffff;--ink:#1a1e1c;--muted:#626b66;--line:#dce1dc;--soft:#eef1ed;
+  --accent:#0d7a69;--accent-ink:#ffffff;--accent-soft:#d9efea;--bar:#cfe4de;--bar-top:#0d7a69;
+  --na:#a8590b;--na-soft:#fbead6;--err:#b42318;--err-soft:#fde8e6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#121513;--surface:#1a1e1c;--ink:#e7ebe8;--muted:#9aa49e;--line:#2b312e;--soft:#20262300;
+  --accent:#3fbfa5;--accent-ink:#06231d;--accent-soft:#16352f;--bar:#22433b;--bar-top:#3fbfa5;
+  --na:#f0a35e;--na-soft:#3a2a17;--err:#ff8a80;--err-soft:#3a1d1a}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#121513;--surface:#1a1e1c;--ink:#e7ebe8;--muted:#9aa49e;--line:#2b312e;--soft:#20262300;
+  --accent:#3fbfa5;--accent-ink:#06231d;--accent-soft:#16352f;--bar:#22433b;--bar-top:#3fbfa5;
+  --na:#f0a35e;--na-soft:#3a2a17;--err:#ff8a80;--err-soft:#3a1d1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;margin-bottom:18px}
+h1{font-size:20px;margin:0;letter-spacing:-.01em}
+.status{font-size:13px;color:var(--muted)}
+.status b{font-weight:600;color:var(--ink)}
+.grid{display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:220px;border:2px dashed var(--line);
+  border-radius:8px;text-align:center;padding:16px;color:var(--muted);cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop img{max-width:100%;max-height:360px;border-radius:6px;display:block}
+.meta{font-size:13px;color:var(--muted);margin-top:10px;font-variant-numeric:tabular-nums}
+button{font:inherit;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.primary:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.q{border-top:1px solid var(--line);padding-block:14px}
+.q:first-child{border-top:0;padding-top:0}
+.qrow{display:flex;gap:8px;flex-wrap:wrap}
+.qrow input.qt{flex:1 1 260px;min-width:0}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+select{padding-right:6px}
+.extra{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center;font-size:14px;color:var(--muted)}
+.extra input{flex:1 1 180px;min-width:0}
+.extra input.num{flex:0 0 64px}
+.rm{border:0;background:none;color:var(--muted);padding:7px 6px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.hint{font-size:13px;color:var(--muted)}
+.result{margin-top:10px;display:grid;gap:4px}
+.ans{display:grid;grid-template-columns:minmax(80px,180px) 1fr 52px;gap:10px;align-items:center;font-size:14px}
+.ans .name{overflow-wrap:anywhere}
+.ans .track{height:12px;background:var(--soft);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.ans .fill{height:100%;background:var(--bar)}
+.ans.top .fill{background:var(--bar-top)}
+.ans.top .name{font-weight:600}
+.ans .pct{text-align:right;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.na{display:inline-flex;gap:6px;align-items:center;font-size:13px;padding:2px 9px;border-radius:999px;background:var(--soft);color:var(--muted);margin-top:4px;width:max-content}
+.na.hi{background:var(--na-soft);color:var(--na);font-weight:600}
+.timing{font-size:13px;color:var(--muted);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.error{background:var(--err-soft);color:var(--err);border-radius:7px;padding:8px 12px;font-size:14px;margin-top:12px}
+.note{font-size:13px;color:var(--muted);margin-top:16px;max-width:70ch}
+@media (prefers-reduced-motion:no-preference){.fill{transition:width .35s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Dragonfly</h1>
+    <div class="status" id="status">Connecting to the model…</div>
+  </header>
+  <div class="grid">
+    <section class="panel">
+      <p class="label">Image</p>
+      <label class="drop" id="drop" for="file">
+        <span id="dropText">Drop an image here, paste one, or click to choose.<br>It's resized in your browser before upload.</span>
+        <img id="preview" alt="" hidden>
+      </label>
+      <input type="file" id="file" accept="image/*" hidden>
+      <div class="meta" id="imgMeta"></div>
+    </section>
+    <section class="panel">
+      <p class="label">Questions</p>
+      <div id="questions"></div>
+      <div class="actions">
+        <button id="add" type="button">Add question</button>
+        <button id="ask" class="primary" type="button" disabled>Ask all</button>
+        <span class="hint">Answers update as you type</span>
+        <span class="timing" id="timing"></span>
+      </div>
+      <div class="error" id="error" hidden></div>
+      <p class="note">Every question is answered from one forward pass, without generating text. Each answer is a
+        calibrated probability distribution. "Can't answer" is the separate probability that the question doesn't
+        apply to this image (for example, it asks about something that isn't there).</p>
+    </section>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let imageKey = null, busy = false, maxQ = 20;
+
+const EXAMPLES = [  // shown on load, editable; replaced by whatever the user writes
+  {type: "bool", q: "Is this photo taken outdoors?"},
+  {type: "choice", q: "What is the main subject of the photo?", options: ["person", "animal", "vehicle", "food", "building"]},
+  {type: "score", q: "How cluttered is the scene?", scale: [1, 5], anchors: ["very tidy", "very cluttered"]},
+  {type: "bool", q: "Is the dog wearing a red collar?"},
+];
+
+async function api(path, body) {
+  const r = await fetch(path, {method: body ? "POST" : "GET", headers: {"Content-Type": "application/json"},
+    body: body ? JSON.stringify(body) : undefined});
+  const data = await r.json().catch(() => ({error: `server error ${r.status}`}));
+  if (!r.ok) throw new Error(data.error || `server error ${r.status}`);
+  return data;
+}
+
+function showError(msg) { $("error").textContent = msg; $("error").hidden = !msg; }
+
+// ---- questions editor
+function addQuestion(q = {type: "bool", q: ""}) {
+  const box = $("questions");
+  if (box.children.length >= maxQ) return;
+  const el = document.createElement("div");
+  el.className = "q";
+  const n = box.children.length + 1;
+  el.innerHTML = `
+    <div class="qrow">
+      <select class="qtype" aria-label="Answer type">
+        <option value="bool">Yes / No</option><option value="choice">Choice</option><option value="score">Scale</option>
+      </select>
+      <input class="qt" id="q${n}-${Date.now()}" placeholder="Ask something about the image" maxlength="300" aria-label="Question">
+      <button class="rm" type="button" aria-label="Remove question">✕</button>
+    </div>
+    <div class="extra choice-x"><input class="opts" placeholder="Options, comma-separated (2–8)" aria-label="Options"></div>
+    <div class="extra score-x">from <input class="num lo" type="number" min="0" max="9" value="1" aria-label="Scale low">
+      <input class="alo" placeholder="what the low end means" maxlength="40" aria-label="Low label">
+      to <input class="num hi" type="number" min="1" max="10" value="5" aria-label="Scale high">
+      <input class="ahi" placeholder="what the high end means" maxlength="40" aria-label="High label"></div>
+    <div class="result"></div>`;
+  el.querySelector(".qtype").value = q.type;
+  el.querySelector(".qt").value = q.q || "";
+  if (q.options) el.querySelector(".opts").value = q.options.join(", ");
+  if (q.scale) { el.querySelector(".lo").value = q.scale[0]; el.querySelector(".hi").value = q.scale[1]; }
+  if (q.anchors) { el.querySelector(".alo").value = q.anchors[0]; el.querySelector(".ahi").value = q.anchors[1]; }
+  const sync = () => {
+    const t = el.querySelector(".qtype").value;
+    el.querySelector(".choice-x").hidden = t !== "choice";
+    el.querySelector(".score-x").hidden = t !== "score";
+    el.querySelector(".result").innerHTML = "";
+  };
+  el.querySelector(".qtype").addEventListener("change", () => { sync(); askSoon(); });
+  el.addEventListener("input", askSoon);
+  el.querySelector(".rm").addEventListener("click", () => { el.remove(); $("add").disabled = false; askSoon(); });
+  sync();
+  box.appendChild(el);
+  $("add").disabled = box.children.length >= maxQ;
+}
+
+function readQuestions() {
+  // only complete questions are sent (live mode asks while you type); returns [[row element, question]]
+  return [...$("questions").children].map(el => {
+    const t = el.querySelector(".qtype").value, q = {type: t, q: el.querySelector(".qt").value.trim()};
+    if (t === "choice") q.options = el.querySelector(".opts").value.split(",").map(s => s.trim()).filter(Boolean);
+    if (t === "score") {
+      q.scale = [+el.querySelector(".lo").value, +el.querySelector(".hi").value];
+      q.anchors = [el.querySelector(".alo").value.trim(), el.querySelector(".ahi").value.trim()];
+    }
+    const ok = q.q && (t !== "choice" || new Set(q.options.map(o => o.toLowerCase())).size >= 2) &&
+               (t !== "score" || (q.scale[0] >= 0 && q.scale[0] < q.scale[1] && q.scale[1] <= 10));
+    return ok ? [el, q] : null;
+  }).filter(Boolean);
+}
+
+function render(rows, results) {
+  results.forEach((r, i) => {
+    const box = rows[i].querySelector(".result");
+    const best = Math.max(...r.answers.map(a => a[1]));
+    const list = r.type === "score" ? r.answers : [...r.answers].sort((a, b) => b[1] - a[1]);
+    box.innerHTML = list.map(([name, p]) => `
+      <div class="ans${p === best ? " top" : ""}"><span class="name"></span>
+        <span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span>
+        <span class="pct">${(p * 100).toFixed(1)}%</span></div>`).join("") +
+      `<span class="na${r.na >= 0.5 ? " hi" : ""}">Can't answer: ${(r.na * 100).toFixed(1)}%</span>`;
+    box.querySelectorAll(".name").forEach((s, k) => s.textContent = list[k][0]);  // text, not HTML
+  });
+}
+
+let again = false, timer = null;
+async function ask() {
+  if (!imageKey) return;
+  if (busy) { again = true; return; }  // latest edit wins: re-ask once the current answer lands
+  const pairs = readQuestions();
+  if (!pairs.length) return;
+  showError("");
+  busy = true;
+  const t0 = performance.now();
+  try {
+    const r = await api("/api/answer", {key: imageKey, questions: pairs.map(p => p[1])});
+    render(pairs.map(p => p[0]), r.results);
+    const rtt = performance.now() - t0;
+    $("timing").textContent = `${r.results.length} question${r.results.length > 1 ? "s" : ""} in one pass · model ${r.answer_ms} ms · round trip ${rtt.toFixed(0)} ms`;
+  } catch (e) { showError(e.message); }
+  busy = false;
+  if (again) { again = false; ask(); }
+}
+function askSoon() { clearTimeout(timer); timer = setTimeout(ask, 300); }  // live: answer shortly after you stop typing
+
+// ---- image: fix orientation, resize to the model's 448×448 pixel budget, upload once
+async function loadImage(file) {
+  if (!file || !file.type.startsWith("image/")) return showError("That file isn't an image.");
+  showError(""); imageKey = null; $("ask").disabled = true;
+  $("imgMeta").textContent = "Resizing and encoding…";
+  try {
+    const bmp = await createImageBitmap(file, {imageOrientation: "from-image"});
+    // the model sees at most 448×448 pixels' worth (aspect kept); send exactly that, not more
+    const s = Math.min(1, Math.sqrt(448 * 448 / (bmp.width * bmp.height)));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise(res => c.toBlob(res, "image/jpeg", 0.9));
+    $("preview").src = URL.createObjectURL(blob); $("preview").hidden = false; $("dropText").hidden = true;
+    const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(blob); });
+    const t0 = performance.now();
+    const r = await api("/api/image", {image: b64});
+    imageKey = r.key;
+    $("imgMeta").textContent = `${bmp.width}×${bmp.height} → ${c.width}×${c.height} px (${(blob.size / 1024).toFixed(0)} KB) · ` +
+      `${r.image_tokens} image tokens · encoded in ${r.encode_ms} ms · upload + encode ${(performance.now() - t0).toFixed(0)} ms`;
+    $("ask").disabled = false;
+    ask();
+  } catch (e) { $("imgMeta").textContent = ""; showError(e.message); }
+}
+
+$("file").addEventListener("change", e => loadImage(e.target.files[0]));
+const drop = $("drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => loadImage(e.dataTransfer.files[0]));
+document.addEventListener("paste", e => { const f = [...e.clipboardData.files][0]; if (f) loadImage(f); });
+document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") ask(); });
+$("add").addEventListener("click", () => addQuestion());
+$("ask").addEventListener("click", ask);
+
+EXAMPLES.forEach(addQuestion);
+api("/api/status").then(s => {
+  maxQ = s.max_questions;
+  $("status").innerHTML = `<b>${s.model.split("/").pop()}</b> + trained adapter · ${s.device}`;
+}).catch(e => { $("status").textContent = "Not connected"; showError(e.message); });
+</script>
+</body>
+</html>
