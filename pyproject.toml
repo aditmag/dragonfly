@@ -1,5 +1,13 @@
 [project]
 name = "dragonfly"
 version = "0.1.0"
+description = "Many typed questions about an image, calibrated probabilities, one forward pass (research preview)"
+license = "Apache-2.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "peft>=0.21.1",
+    "pillow>=12.3.0",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "transformers>=5.18.0",
+]
