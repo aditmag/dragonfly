@@ -12,16 +12,16 @@
 
 ### How it works
 
-Unlike a VLM that generates an answer to each question, Dragonfly reads the image once and scores every question in the same pass, which is why it stays blazing fast as the list grows.
+Dragonfly reads the image once and scores every question in the same pass with no text generation, which is why it's fast. Thanks to an attention mask, the answer only depends on the image and the specific question independently, irrespective of how many questions are asked.
 
 <div align="center">
 
-| Questions | Qwen3-VL-4B, one request each | Dragonfly, one pass |
-|---|---|---|
-| 100 | 13.02 s | **0.22 s** |
-| 250 | 32.46 s | **0.82 s** |
-| 500 | 65.10 s | 2.30 s |
-| **1,000** | **130.19 s** | **8.20 s** |
+| Questions | Time |
+|---:|---:|
+| 100 | 0.22 s |
+| 250 | 0.82 s |
+| 500 | 2.30 s |
+| 1,000 | 8.20 s |
 
 
 
