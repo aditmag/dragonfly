@@ -72,11 +72,6 @@ VQA datasets, plus questions written and labelled by larger Qwen VLMs, calibrate
 
 </div>
 
-### Limits
-
-It's not faster than a well-served VLM yet: on an RTX 5070, batched vLLM ties it at 10 questions and is 2× faster at
-100 (0.58 s vs 1.22 s). It only knows photos, downscaled to 448×448, and has no room to reason step by step.
-
 ### Run it
 
 ```
