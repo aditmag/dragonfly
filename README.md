@@ -2,8 +2,6 @@
   <img src="assets/dragonfly.png" alt="Dragonfly" width="600">
 </p>
 
-<h1 align="center">Ask an image many questions at once</h1>
-
 <h3 align="center">Dragonfly is a LoRA fine-tune of Qwen3-VL with typed output heads that answers many questions about an image in one pass, with a probability for every answer.</h3>
 
 <p align="center">
