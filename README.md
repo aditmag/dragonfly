@@ -2,9 +2,7 @@
   <img src="assets/dragonfly.png" alt="Dragonfly" width="600">
 </p>
 
-<h1 align="center">Query images  in milliseconds</h1>
-
-<h3 align="center">Dragonfly is a LoRA fine-tune of Qwen3-VL with typed output heads that answers many questions about an image in one  pass, as calibrated probabilities.</h3>
+<h3 align="center">Dragonfly is a LoRA fine-tune of Qwen3-VL with typed output heads that answers many questions about an image in one pass, with a probability for every answer.</h3>
 
 <p align="center">
   <a href="https://adit.run/dragonfly"><img src="https://img.shields.io/badge/demo-adit.run%2Fdragonfly-orange" alt="demo: adit.run/dragonfly"></a>
@@ -12,22 +10,8 @@
 
 ### How it works
 
-Dragonfly reads the image once and scores every question in the same pass with no text generation, which is why it's fast. Thanks to an attention mask, the answer only depends on the image and the specific question independently, irrespective of how many questions are asked.
-
-<div align="center">
-
-| Questions | Time |
-|---:|---:|
-| 100 | 0.22 s |
-| 250 | 0.82 s |
-| 500 | 2.30 s |
-| 1,000 | 8.20 s |
-
-
-
-NVIDIA GH200, bf16, median of 5 runs.
-
-</div>
+Unlike a VLM that generates an answer to each question, Dragonfly reads the image once and scores every question in
+the same pass. Questions can't see each other, so each answer is the same as asking it alone, in any order.
 
 ### Typed answers
 
@@ -42,9 +26,33 @@ possible answer.
 | Choice | "What time of day is it: morning, noon, or night?" | "Based on the visual evidence in the image, it is most likely **morning**. Here's the reasoning: …" | morning 58%<br>noon 30%<br>night 12%<br>*can't answer 35%* |
 | Scale | "How cluttered is the scene, from 1 (tidy) to 3 (cluttered)?" | "The scene is **1 (tidy)**. While there are a few scattered objects — like a small crate or box in the foreground…" | 1: 74%<br>2: 19%<br>3: 6%<br>*can't answer 5%* |
 
+Examples picked from the demo.
+
 </div>
 
-"Can't answer" is the probability that the question doesn't fit the image. When told to pick a colour for the dog (brown, black, or white) in a photo with no dog, Qwen3-VL-4B picked "black"; Dragonfly returns can't answer 98%.
+"Can't answer" is the probability that the question doesn't fit the image. It's trained mostly on questions about
+things that aren't in the photo, and rarely catches anything else: 1 of 24 "Unknown" items on ImajevBench.
+
+### Results
+
+Dragonfly against the model it was trained from.
+
+<div align="center">
+
+| | Qwen3-VL-4B | Dragonfly 4B | Qwen3-VL-8B | Dragonfly 8B |
+|---|---:|---:|---:|---:|
+| Yes / no | 85.8% (0.011) | 88.1% (0.007) | 86.4% (0.020) | 88.4% (0.006) |
+| Choice | 82.1% (0.010) | 83.9% (0.003) | 82.3% (0.011) | 84.1% (0.008) |
+| Scale | 72.7% (0.023) | 77.8% (0.009) | 73.8% (0.031) | 78.2% (0.012) |
+| Open / closed (held out) | 70.6% | 72.3% | 72.0% | 73.2% |
+| Material (held out) | 87.1% | 88.2% | 88.0% | 88.9% |
+| POPE adversarial | 88.0% (0.022) | 89.0% (0.031) | 87.5% (0.019) | 88.3% (0.032) |
+| ImajevBench (254 items) | 61.8% | 64.2% | 69.3% | 70.9% |
+
+Accuracy (ECE), all models temperature-scaled. Qwen3-VL is read through its own answer probabilities. 18% of test
+labels come from the larger Qwen VLMs. [Raw numbers](results/).
+
+</div>
 
 ### Data
 
@@ -58,7 +66,7 @@ VQA datasets, plus questions written and labelled by larger Qwen VLMs, calibrate
 | Human vote spreads (VQAv2, KonIQ-10k) | 79,105 | 16,005 | 18,031 | 113,141 |
 | Exact labels (GQA, A-OKVQA, TallyQA, VizWiz, COCO / Visual Genome) | 174,093 | 30,518 | 43,855 | 248,466 |
 | Written and labelled by Qwen3-VL-32B and Qwen2.5-VL-32B | 325,757 | 8,176 | 13,821 | 347,754 |
-| Option-count variants | 30,275 | – | – | 30,275 |
+| Option-count variants (copies with fewer options) | 30,275 | – | – | 30,275 |
 | **Questions** | **609,230** | **54,699** | **75,707** | **739,636** |
 | **Images** | **123,048** | **9,082** | **9,706** | **141,836** |
 
