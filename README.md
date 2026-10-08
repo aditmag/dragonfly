@@ -31,7 +31,7 @@ Examples picked from the demo.
 </div>
 
 "Can't answer" is the probability that the question doesn't fit the image. It's trained mostly on questions about
-things that aren't in the photo, and rarely catches anything else: 1 of 24 "Unknown" items on ImajevBench.
+things that aren't in the photo, and rarely catches anything else.
 
 ### Results
 
@@ -47,7 +47,6 @@ Dragonfly against the model it was trained from.
 | Open / closed (held out) | 70.6% | 72.3% | 72.0% | 73.2% |
 | Material (held out) | 87.1% | 88.2% | 88.0% | 88.9% |
 | POPE adversarial | 88.0% (0.022) | 89.0% (0.031) | 87.5% (0.019) | 88.3% (0.032) |
-| ImajevBench (254 items) | 61.8% | 64.2% | 69.3% | 70.9% |
 
 Accuracy (ECE), all models temperature-scaled. Qwen3-VL is read through its own answer probabilities. 18% of test
 labels come from the larger Qwen VLMs. [Raw numbers](results/).
